@@ -53,13 +53,90 @@
         }
     </style>
     <script>
-        // JavaScript Code
+        const API_URL = "https://server-js-o0xl.onrender.com";
+
+        // Handle Login
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("loginForm").addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+
+                try {
+                    const response = await fetch(`${API_URL}/login`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password }),
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        alert(`${data.message}. Current Rewards: ₹${data.rewards}`);
+                    } else {
+                        alert("Invalid credentials!");
+                    }
+                } catch (error) {
+                    alert("Error connecting to server!");
+                    console.error(error);
+                }
+            });
+        });
+
+        // Watch Ads & Earn Rewards
         function watchAds() {
-            alert('Watching ads... Rewards credited!');
+            const username = prompt("Enter your username to earn rewards:");
+
+            if (!username) {
+                alert("Username is required to earn rewards!");
+                return;
+            }
+
+            fetch(`${API_URL}/add-reward`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, reward: 10 }), // Add 10 points for watching an ad
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                    } else {
+                        alert("Unable to add rewards!");
+                    }
+                })
+                .catch(error => {
+                    alert("Error connecting to server!");
+                    console.error(error);
+                });
         }
 
+        // Withdraw Rewards
         function withdrawRewards() {
-            alert('Withdrawal request sent! You will receive your money via UPI shortly.');
+            const username = prompt("Enter your username to withdraw rewards:");
+
+            if (!username) {
+                alert("Username is required for withdrawal!");
+                return;
+            }
+
+            fetch(`${API_URL}/withdraw`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                    } else {
+                        alert("Unable to process withdrawal!");
+                    }
+                })
+                .catch(error => {
+                    alert("Error connecting to server!");
+                    console.error(error);
+                });
         }
     </script>
 </head>
@@ -92,15 +169,15 @@
     <section id="ads">
         <h2>Watch Ads & Earn</h2>
         <div id="ad-space">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-2526583167218952"
-         data-ad-slot="1234567890"
-         data-ad-format="auto"></ins>
-    <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2526583167218952"
+                 data-ad-slot="1234567890"
+                 data-ad-format="auto"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
         <button onclick="watchAds()">Start Watching Ads</button>
     </section>
