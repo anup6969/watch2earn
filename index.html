@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch2Earn</title>
+    <style>
+        /* CSS Code */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            text-align: center;
+            background: #0078D7;
+            color: #fff;
+            padding: 20px;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 10px;
+            background: #333;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #fff;
+        }
+
+        section {
+            margin: 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: #333;
+            color: #fff;
+        }
+    </style>
+    <script>
+        // JavaScript Code
+        function watchAds() {
+            alert('Watching ads... Rewards credited!');
+        }
+
+        function withdrawRewards() {
+            alert('Withdrawal request sent! You will receive your money via UPI shortly.');
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Watch2Earn</h1>
+        <p>Earn money by watching ads easily!</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#ads">Ads</a></li>
+            <li><a href="#withdraw">Withdraw</a></li>
+            <li><a href="#login">Login</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section id="features">
+        <h2>Features</h2>
+        <ul>
+            <li>User accounts for personalized access</li>
+            <li>Rewards tracking</li>
+            <li>Ad categories for tailored experience</li>
+            <li>Secure UPI-based withdrawals</li>
+        </ul>
+    </section>
+
+    <section id="ads">
+        <h2>Watch Ads & Earn</h2>
+        <div id="ad-space"></div>
+        <button onclick="watchAds()">Start Watching Ads</button>
+    </section>
+
+    <section id="withdraw">
+        <h2>Withdraw Earnings</h2>
+        <p>Easily withdraw your rewards via UPI.</p>
+        <button onclick="withdrawRewards()">Withdraw Now</button>
+    </section>
+
+    <section id="login">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br><br>
+            <button type="submit">Login</button>
+        </form>
+    </section>
+
+    <footer id="contact">
+        <p>Contact Us: support@watch2earn.com</p>
+    </footer>
+</body>
+</html>
