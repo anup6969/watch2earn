@@ -15,7 +15,7 @@
 
         header {
             text-align: center;
-            background: #0078D7;
+            background: linear-gradient(90deg, #ff7eb3, #ff758c);
             color: #fff;
             padding: 20px;
         }
@@ -37,6 +37,26 @@
             color: #fff;
         }
 
+        .top-buttons {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        .top-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #0078D7;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .top-buttons button:hover {
+            background: #005bb5;
+        }
+
         section {
             margin: 20px;
             padding: 20px;
@@ -55,9 +75,31 @@
         .hidden {
             display: none;
         }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-container button {
+            padding: 10px 20px;
+            background: #ff7eb3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-container button:hover {
+            background: #ff758c;
+        }
     </style>
     <script>
         const API_URL = "https://server-js-o0xl.onrender.com";
+
+        // Save session data
+        let sessionUsername = null;
 
         // Handle Registration
         document.addEventListener("DOMContentLoaded", () => {
@@ -85,31 +127,49 @@
                     console.error(error);
                 }
             });
-
-            // Toggle the visibility of the Watch Ads and Withdraw sections
-            const toggleButton = document.getElementById("toggleSections");
-            const sectionsToToggle = document.querySelectorAll(".toggle-section");
-
-            toggleButton.addEventListener("click", () => {
-                sectionsToToggle.forEach(section => {
-                    section.classList.toggle("hidden");
-                });
-            });
         });
+
+        // Handle Login
+        async function loginUser() {
+            const username = prompt("Enter your username:");
+            const password = prompt("Enter your password:");
+
+            if (!username || !password) {
+                alert("Both username and password are required!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    sessionUsername = username; // Save username for the session
+                    alert(`Login successful. Rewards: ₹${data.rewards}`);
+                } else {
+                    alert("Invalid credentials!");
+                }
+            } catch (error) {
+                alert("Error connecting to server!");
+                console.error(error);
+            }
+        }
 
         // Watch Ads & Earn Rewards
         function watchAds() {
-            const username = prompt("Enter your username to earn rewards:");
-
-            if (!username) {
-                alert("Username is required to earn rewards!");
+            if (!sessionUsername) {
+                alert("Please log in first!");
                 return;
             }
 
             fetch(`${API_URL}/add-reward`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, reward: 10 }),
+                body: JSON.stringify({ username: sessionUsername, reward: 10 }),
             })
                 .then(response => response.json())
                 .then(data => {
@@ -127,17 +187,21 @@
 
         // Withdraw Rewards
         function withdrawRewards() {
-            const username = prompt("Enter your username to withdraw rewards:");
+            if (!sessionUsername) {
+                alert("Please log in first!");
+                return;
+            }
 
-            if (!username) {
-                alert("Username is required for withdrawal!");
+            const upiId = prompt("Enter your UPI ID or number:");
+            if (!upiId) {
+                alert("UPI ID is required for withdrawal!");
                 return;
             }
 
             fetch(`${API_URL}/withdraw`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username }),
+                body: JSON.stringify({ username: sessionUsername, upiId }),
             })
                 .then(response => response.json())
                 .then(data => {
@@ -160,14 +224,10 @@
         <p>Earn money by watching ads easily!</p>
     </header>
 
-    <nav>
-        <ul>
-            <li><a href="#features">Features</a></li>
-            <li><a href="#register">Register</a></li>
-            <li><a href="#ads">Ads</a></li>
-            <li><a href="#withdraw">Withdraw</a></li>
-        </ul>
-    </nav>
+    <div class="top-buttons">
+        <button onclick="loginUser()">Login</button>
+        <button onclick="document.getElementById('register').scrollIntoView()">Register</button>
+    </div>
 
     <section id="features">
         <h2>Features</h2>
@@ -190,31 +250,15 @@
         </form>
     </section>
 
-    <button id="toggleSections">Toggle Ads and Withdrawal</button>
-
-    <section id="ads" class="toggle-section hidden">
-        <h2>Watch Ads & Earn</h2>
-        <div id="ad-space">
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-2526583167218952"
-                 data-ad-slot="1234567890"
-                 data-ad-format="auto"></ins>
-            <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
+    <section id="actions">
+        <h2>Actions</h2>
+        <div class="btn-container">
+            <button onclick="watchAds()">Watch Ads</button>
+            <button onclick="withdrawRewards()">Withdraw Rewards</button>
         </div>
-        <button onclick="watchAds()">Start Watching Ads</button>
     </section>
 
-    <section id="withdraw" class="toggle-section hidden">
-        <h2>Withdraw Earnings</h2>
-        <p>Easily withdraw your rewards via UPI.</p>
-        <button onclick="withdrawRewards()">Withdraw Now</button>
-    </section>
-
-    <footer id="contact">
+    <footer>
         <p>Contact Us: support@watch2earn.com</p>
     </footer>
 </body>
