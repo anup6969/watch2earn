@@ -51,20 +51,24 @@
             background: #333;
             color: #fff;
         }
+
+        .hidden {
+            display: none;
+        }
     </style>
     <script>
         const API_URL = "https://server-js-o0xl.onrender.com";
 
-        // Handle Login
+        // Handle Registration
         document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("loginForm").addEventListener("submit", async function (event) {
+            document.getElementById("registerForm").addEventListener("submit", async function (event) {
                 event.preventDefault();
 
-                const username = document.getElementById("username").value;
-                const password = document.getElementById("password").value;
+                const username = document.getElementById("regUsername").value;
+                const password = document.getElementById("regPassword").value;
 
                 try {
-                    const response = await fetch(`${API_URL}/login`, {
+                    const response = await fetch(`${API_URL}/register`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ username, password }),
@@ -72,14 +76,24 @@
 
                     if (response.ok) {
                         const data = await response.json();
-                        alert(`${data.message}. Current Rewards: ₹${data.rewards}`);
+                        alert(data.message);
                     } else {
-                        alert("Invalid credentials!");
+                        alert("Registration failed!");
                     }
                 } catch (error) {
                     alert("Error connecting to server!");
                     console.error(error);
                 }
+            });
+
+            // Toggle the visibility of the Watch Ads and Withdraw sections
+            const toggleButton = document.getElementById("toggleSections");
+            const sectionsToToggle = document.querySelectorAll(".toggle-section");
+
+            toggleButton.addEventListener("click", () => {
+                sectionsToToggle.forEach(section => {
+                    section.classList.toggle("hidden");
+                });
             });
         });
 
@@ -95,7 +109,7 @@
             fetch(`${API_URL}/add-reward`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, reward: 10 }), // Add 10 points for watching an ad
+                body: JSON.stringify({ username, reward: 10 }),
             })
                 .then(response => response.json())
                 .then(data => {
@@ -149,10 +163,9 @@
     <nav>
         <ul>
             <li><a href="#features">Features</a></li>
+            <li><a href="#register">Register</a></li>
             <li><a href="#ads">Ads</a></li>
             <li><a href="#withdraw">Withdraw</a></li>
-            <li><a href="#login">Login</a></li>
-            <li><a href="#contact">Contact</a></li>
         </ul>
     </nav>
 
@@ -166,7 +179,20 @@
         </ul>
     </section>
 
-    <section id="ads">
+    <section id="register">
+        <h2>Register</h2>
+        <form id="registerForm">
+            <label for="regUsername">Username:</label>
+            <input type="text" id="regUsername" name="regUsername" required><br><br>
+            <label for="regPassword">Password:</label>
+            <input type="password" id="regPassword" name="regPassword" required><br><br>
+            <button type="submit">Register</button>
+        </form>
+    </section>
+
+    <button id="toggleSections">Toggle Ads and Withdrawal</button>
+
+    <section id="ads" class="toggle-section hidden">
         <h2>Watch Ads & Earn</h2>
         <div id="ad-space">
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -182,21 +208,10 @@
         <button onclick="watchAds()">Start Watching Ads</button>
     </section>
 
-    <section id="withdraw">
+    <section id="withdraw" class="toggle-section hidden">
         <h2>Withdraw Earnings</h2>
         <p>Easily withdraw your rewards via UPI.</p>
         <button onclick="withdrawRewards()">Withdraw Now</button>
-    </section>
-
-    <section id="login">
-        <h2>Login</h2>
-        <form id="loginForm">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required><br><br>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required><br><br>
-            <button type="submit">Login</button>
-        </form>
     </section>
 
     <footer id="contact">
