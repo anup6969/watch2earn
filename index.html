@@ -58,42 +58,6 @@
             display: none;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        table th, table td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        table th {
-            background: #0078D7;
-            color: #fff;
-        }
-
-        .btn-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .btn-container button {
-            padding: 10px 20px;
-            background: #ff7eb3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn-container button:hover {
-            background: #ff758c;
-        }
-
         iframe {
             width: 100%;
             height: 300px;
@@ -102,36 +66,7 @@
     </style>
     <script>
         const API_URL = "https://server-js-o0xl.onrender.com";
-
         let sessionUsername = null;
-
-        // Handle User Registration
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("registerForm").addEventListener("submit", async function (event) {
-                event.preventDefault();
-
-                const username = document.getElementById("regUsername").value;
-                const password = document.getElementById("regPassword").value;
-
-                try {
-                    const response = await fetch(`${API_URL}/register`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ username, password }),
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        alert(data.message);
-                    } else {
-                        alert("Registration failed!");
-                    }
-                } catch (error) {
-                    alert("Error connecting to server!");
-                    console.error(error);
-                }
-            });
-        });
 
         // Handle User Login
         async function loginUser() {
@@ -155,11 +90,12 @@
                     sessionUsername = username;
                     alert(`Login successful. Rewards: ₹${data.rewards}`);
                 } else {
-                    alert("Invalid credentials!");
+                    const error = await response.json();
+                    alert(error.message || "Invalid credentials!");
                 }
             } catch (error) {
-                alert("Error connecting to server!");
                 console.error(error);
+                alert("Error connecting to server!");
             }
         }
 
@@ -179,11 +115,12 @@
                     alert("Admin login successful!");
                     document.getElementById("adminPanel").classList.remove("hidden");
                 } else {
-                    alert("Invalid admin credentials!");
+                    const error = await response.json();
+                    alert(error.message || "Invalid admin credentials!");
                 }
             } catch (error) {
-                alert("Error connecting to server!");
                 console.error(error);
+                alert("Error connecting to server!");
             }
         }
 
@@ -201,38 +138,17 @@
 
             setTimeout(async () => {
                 alert("Reward added successfully!");
-                await fetch(`${API_URL}/add-reward`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username: sessionUsername, reward: 10 }),
-                });
-            }, 5000);
-        }
-
-        // Fetch Withdrawal Requests (Admin)
-        async function fetchWithdrawalRequests() {
-            try {
-                const response = await fetch(`${API_URL}/withdrawal-requests`);
-                if (response.ok) {
-                    const requests = await response.json();
-                    const tableBody = document.getElementById("withdrawalTableBody");
-                    tableBody.innerHTML = ""; // Clear previous data
-                    requests.forEach((req, index) => {
-                        tableBody.innerHTML += `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${req.username}</td>
-                                <td>${req.upiId}</td>
-                                <td>₹${req.amount}</td>
-                                <td>${req.status}</td>
-                            </tr>
-                        `;
+                try {
+                    await fetch(`${API_URL}/add-reward`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username: sessionUsername, reward: 10 }),
                     });
+                } catch (error) {
+                    console.error(error);
+                    alert("Error adding reward!");
                 }
-            } catch (error) {
-                console.error(error);
-                alert("Error fetching withdrawal requests!");
-            }
+            }, 5000);
         }
     </script>
 </head>
@@ -245,7 +161,6 @@
     <div class="top-buttons">
         <button onclick="loginUser()">User Login</button>
         <button onclick="adminLogin()">Admin Login</button>
-        <button onclick="document.getElementById('register').scrollIntoView()">Register</button>
     </div>
 
     <section id="features">
@@ -258,20 +173,9 @@
         </ul>
     </section>
 
-    <section id="register">
-        <h2>Register</h2>
-        <form id="registerForm">
-            <label for="regUsername">Username:</label>
-            <input type="text" id="regUsername" name="regUsername" required><br><br>
-            <label for="regPassword">Password:</label>
-            <input type="password" id="regPassword" name="regPassword" required><br><br>
-            <button type="submit">Register</button>
-        </form>
-    </section>
-
     <section id="actions">
         <h2>Actions</h2>
-        <div class="btn-container">
+        <div>
             <button onclick="watchAds()">Watch Ads</button>
         </div>
         <div id="adContainer"></div>
@@ -291,7 +195,6 @@
             </thead>
             <tbody id="withdrawalTableBody"></tbody>
         </table>
-        <button onclick="fetchWithdrawalRequests()">Refresh</button>
     </section>
 
     <footer>
