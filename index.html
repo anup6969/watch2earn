@@ -100,8 +100,6 @@
             margin: 20px 0;
         }
     </style>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2526583167218952"
-            crossorigin="anonymous"></script>
     <script>
         const API_URL = "https://server-js-o0xl.onrender.com";
 
@@ -156,7 +154,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     sessionUsername = username;
-                    alert(`Login successful. Rewards: ₹${data.rewards}`);
+                    alert(`Login successful. Tokens: ₹${data.tokens}`);
                 } else {
                     const errorData = await response.json();
                     alert(`Login failed: ${errorData.message}`);
@@ -192,23 +190,23 @@
         }
 
         // Watch Video
-        async function watchAds() {
+        async function watchVideo() {
             if (!sessionUsername) {
                 alert("Please log in first!");
                 return;
             }
 
-            const adContainer = document.getElementById("adContainer");
-            adContainer.innerHTML = `
+            const videoContainer = document.getElementById("videoContainer");
+            videoContainer.innerHTML = `
                 <iframe src="https://www.youtube.com/embed/tgbNymZ7vqY" frameborder="0" allowfullscreen></iframe>
             `;
 
             setTimeout(async () => {
-                alert("Successful!");
-                await fetch(`${API_URL}/add-reward`, {
+                alert("Video watched successfully!");
+                await fetch(`${API_URL}/add-token`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username: sessionUsername, reward: 10 }),
+                    body: JSON.stringify({ username: sessionUsername, token: 10 }),
                 });
             }, 5000);
         }
@@ -216,18 +214,18 @@
         // Fetch Summary Requests
         async function fetchSummaryRequests() {
             try {
-                const response = await fetch(`${API_URL}/withdrawal-requests`);
+                const response = await fetch(`${API_URL}/summary-requests`);
                 if (response.ok) {
                     const requests = await response.json();
-                    const tableBody = document.getElementById("withdrawalTableBody");
-                    tableBody.innerHTML = ""; 
+                    const tableBody = document.getElementById("summaryTableBody");
+                    tableBody.innerHTML = "";
                     requests.forEach((req, index) => {
                         tableBody.innerHTML += `
                             <tr>
                                 <td>${index + 1}</td>
                                 <td>${req.username}</td>
                                 <td>${req.id}</td>
-                                <td>${req.token}</td>
+                                <td>₹${req.token}</td>
                                 <td>${req.status}</td>
                             </tr>
                         `;
@@ -243,6 +241,7 @@
 <body>
     <header>
         <h1>Watch2Get</h1>
+        <p>Earn tokens by watching videos!</p>
     </header>
 
     <div class="top-buttons">
@@ -265,13 +264,13 @@
     <section id="actions">
         <h2>Actions</h2>
         <div class="btn-container">
-            <button onclick="watchAds()">Watch Video</button>
+            <button onclick="watchVideo()">Watch Video</button>
         </div>
-        <div id="adContainer"></div>
+        <div id="videoContainer"></div>
     </section>
 
     <section id="adminPanel" class="hidden">
-        <h2>Summary</h2>
+        <h2>Summary Requests</h2>
         <table>
             <thead>
                 <tr>
@@ -282,13 +281,13 @@
                     <th>Status</th>
                 </tr>
             </thead>
-            <tbody id="withdrawalTableBody"></tbody>
+            <tbody id="summaryTableBody"></tbody>
         </table>
-        <button onclick="fetchSummaryRequests()">Refresh</button>
+        <button onclick="fetchSummaryRequests()">Summary</button>
     </section>
 
     <footer>
-        <p>Contact Us: help@watch2get.com</p>
+        <p>Contact Us: support@watch2get.com</p>
     </footer>
 </body>
 </html>
