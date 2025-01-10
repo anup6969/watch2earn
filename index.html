@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watch2Earn Admin Panel</title>
+    <title>Watch2Earn</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,8 +19,24 @@
             padding: 20px;
         }
 
-        .hidden {
-            display: none;
+        .top-buttons {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        .top-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #0078D7;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .top-buttons button:hover {
+            background: #005bb5;
         }
 
         section {
@@ -29,6 +45,17 @@
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: #333;
+            color: #fff;
+        }
+
+        .hidden {
+            display: none;
         }
 
         table {
@@ -48,18 +75,23 @@
             color: #fff;
         }
 
-        button {
-            margin: 10px;
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-container button {
             padding: 10px 20px;
-            background: #0078D7;
+            background: #ff7eb3;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
 
-        button:hover {
-            background: #005bb5;
+        .btn-container button:hover {
+            background: #ff758c;
         }
 
         iframe {
@@ -71,10 +103,70 @@
     <script>
         const API_URL = "https://server-js-o0xl.onrender.com";
 
-        // Admin login
+        let sessionUsername = null;
+
+        // Handle User Registration
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("registerForm").addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const username = document.getElementById("regUsername").value;
+                const password = document.getElementById("regPassword").value;
+
+                try {
+                    const response = await fetch(`${API_URL}/register`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password }),
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        alert(data.message);
+                    } else {
+                        alert("Registration failed!");
+                    }
+                } catch (error) {
+                    alert("Error connecting to server!");
+                    console.error(error);
+                }
+            });
+        });
+
+        // Handle User Login
+        async function loginUser() {
+            const username = prompt("Enter your username:");
+            const password = prompt("Enter your password:");
+
+            if (!username || !password) {
+                alert("Both username and password are required!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    sessionUsername = username;
+                    alert(`Login successful. Rewards: ₹${data.rewards}`);
+                } else {
+                    alert("Invalid credentials!");
+                }
+            } catch (error) {
+                alert("Error connecting to server!");
+                console.error(error);
+            }
+        }
+
+        // Handle Admin Login
         async function adminLogin() {
-            const username = document.getElementById("adminUsername").value;
-            const password = document.getElementById("adminPassword").value;
+            const username = prompt("Enter admin username:");
+            const password = prompt("Enter admin password:");
 
             try {
                 const response = await fetch(`${API_URL}/admin-login`, {
@@ -84,20 +176,40 @@
                 });
 
                 if (response.ok) {
-                    alert('Admin login successful!');
-                    document.getElementById("adminLogin").classList.add("hidden");
+                    alert("Admin login successful!");
                     document.getElementById("adminPanel").classList.remove("hidden");
-                    fetchWithdrawalRequests();
                 } else {
-                    alert('Invalid admin credentials');
+                    alert("Invalid admin credentials!");
                 }
             } catch (error) {
+                alert("Error connecting to server!");
                 console.error(error);
-                alert('Error connecting to server!');
             }
         }
 
-        // Fetch withdrawal requests
+        // Watch Ads
+        async function watchAds() {
+            if (!sessionUsername) {
+                alert("Please log in first!");
+                return;
+            }
+
+            const adContainer = document.getElementById("adContainer");
+            adContainer.innerHTML = `
+                <iframe src="https://www.youtube.com/embed/tgbNymZ7vqY" frameborder="0" allowfullscreen></iframe>
+            `;
+
+            setTimeout(async () => {
+                alert("Reward added successfully!");
+                await fetch(`${API_URL}/add-reward`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: sessionUsername, reward: 10 }),
+                });
+            }, 5000);
+        }
+
+        // Fetch Withdrawal Requests (Admin)
         async function fetchWithdrawalRequests() {
             try {
                 const response = await fetch(`${API_URL}/withdrawal-requests`);
@@ -119,50 +231,54 @@
                 }
             } catch (error) {
                 console.error(error);
-                alert('Error fetching withdrawal requests!');
+                alert("Error fetching withdrawal requests!");
             }
-        }
-
-        // Watch Ads
-        async function watchAds() {
-            // Display Google Ad
-            const adContainer = document.getElementById("adContainer");
-            adContainer.innerHTML = `
-                <iframe src="https://www.youtube.com/embed/tgbNymZ7vqY" frameborder="0" allowfullscreen></iframe>
-            `;
-
-            // Simulate reward after ad
-            setTimeout(async () => {
-                alert('Reward added successfully!');
-                // Add reward
-                await fetch(`${API_URL}/add-reward`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username: "testuser", reward: 10 }),
-                });
-            }, 5000);
         }
     </script>
 </head>
 <body>
     <header>
-        <h1>Watch2Earn Admin Panel</h1>
-        <p>Manage withdrawal requests and rewards</p>
+        <h1>Watch2Earn</h1>
+        <p>Earn money by watching ads easily!</p>
     </header>
 
-    <!-- Admin Login -->
-    <section id="adminLogin">
-        <h2>Admin Login</h2>
-        <label>Username:</label>
-        <input type="text" id="adminUsername"><br>
-        <label>Password:</label>
-        <input type="password" id="adminPassword"><br>
-        <button onclick="adminLogin()">Login</button>
+    <div class="top-buttons">
+        <button onclick="loginUser()">User Login</button>
+        <button onclick="adminLogin()">Admin Login</button>
+        <button onclick="document.getElementById('register').scrollIntoView()">Register</button>
+    </div>
+
+    <section id="features">
+        <h2>Features</h2>
+        <ul>
+            <li>User accounts for personalized access</li>
+            <li>Rewards tracking</li>
+            <li>Ad categories for tailored experience</li>
+            <li>Secure UPI-based withdrawals</li>
+        </ul>
     </section>
 
-    <!-- Admin Panel -->
+    <section id="register">
+        <h2>Register</h2>
+        <form id="registerForm">
+            <label for="regUsername">Username:</label>
+            <input type="text" id="regUsername" name="regUsername" required><br><br>
+            <label for="regPassword">Password:</label>
+            <input type="password" id="regPassword" name="regPassword" required><br><br>
+            <button type="submit">Register</button>
+        </form>
+    </section>
+
+    <section id="actions">
+        <h2>Actions</h2>
+        <div class="btn-container">
+            <button onclick="watchAds()">Watch Ads</button>
+        </div>
+        <div id="adContainer"></div>
+    </section>
+
     <section id="adminPanel" class="hidden">
-        <h2>Withdrawal Requests</h2>
+        <h2>Withdrawal Requests (Admin)</h2>
         <table>
             <thead>
                 <tr>
@@ -178,11 +294,8 @@
         <button onclick="fetchWithdrawalRequests()">Refresh</button>
     </section>
 
-    <!-- Watch Ads -->
-    <section>
-        <h2>Watch Ads</h2>
-        <div id="adContainer"></div>
-        <button onclick="watchAds()">Watch Ad</button>
-    </section>
+    <footer>
+        <p>Contact Us: support@watch2earn.com</p>
+    </footer>
 </body>
 </html>
