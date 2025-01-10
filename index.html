@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Hub</title>
+    <title>Watch2Get</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -54,10 +54,25 @@
             color: #fff;
         }
 
-        iframe {
+        .hidden {
+            display: none;
+        }
+
+        table {
             width: 100%;
-            height: 300px;
+            border-collapse: collapse;
             margin: 20px 0;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        table th {
+            background: #0078D7;
+            color: #fff;
         }
 
         .btn-container {
@@ -78,6 +93,12 @@
         .btn-container button:hover {
             background: #ff758c;
         }
+
+        iframe {
+            width: 100%;
+            height: 300px;
+            margin: 20px 0;
+        }
     </style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2526583167218952"
             crossorigin="anonymous"></script>
@@ -86,8 +107,92 @@
 
         let sessionUsername = null;
 
+        // Registration Handler
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("registerForm").addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const username = document.getElementById("regUsername").value;
+                const password = document.getElementById("regPassword").value;
+
+                try {
+                    const response = await fetch(`${API_URL}/register`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password }),
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        alert("Registration successful! You can now log in.");
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Registration failed: ${errorData.message}`);
+                    }
+                } catch (error) {
+                    alert("Error connecting to the server. Please try again later.");
+                    console.error(error);
+                }
+            });
+        });
+
+        // Login Handler
+        async function loginUser() {
+            const username = prompt("Enter your username:");
+            const password = prompt("Enter your password:");
+
+            if (!username || !password) {
+                alert("Both username and password are required!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    sessionUsername = username;
+                    alert(`Login successful. Rewards: ₹${data.rewards}`);
+                } else {
+                    const errorData = await response.json();
+                    alert(`Login failed: ${errorData.message}`);
+                }
+            } catch (error) {
+                alert("Error connecting to the server!");
+                console.error(error);
+            }
+        }
+
+        // Admin Login
+        async function adminLogin() {
+            const username = prompt("Enter admin username:");
+            const password = prompt("Enter admin password:");
+
+            try {
+                const response = await fetch(`${API_URL}/admin-login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.ok) {
+                    alert("Admin login successful!");
+                    document.getElementById("adminPanel").classList.remove("hidden");
+                } else {
+                    alert("Invalid admin credentials!");
+                }
+            } catch (error) {
+                alert("Error connecting to server!");
+                console.error(error);
+            }
+        }
+
         // Watch Video
-        async function watchVideo() {
+        async function watchAds() {
             if (!sessionUsername) {
                 alert("Please log in first!");
                 return;
@@ -99,7 +204,7 @@
             `;
 
             setTimeout(async () => {
-                alert("Successful");
+                alert("Successful!");
                 await fetch(`${API_URL}/add-reward`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -107,12 +212,37 @@
                 });
             }, 5000);
         }
+
+        // Fetch Summary Requests
+        async function fetchSummaryRequests() {
+            try {
+                const response = await fetch(`${API_URL}/withdrawal-requests`);
+                if (response.ok) {
+                    const requests = await response.json();
+                    const tableBody = document.getElementById("withdrawalTableBody");
+                    tableBody.innerHTML = ""; 
+                    requests.forEach((req, index) => {
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${req.username}</td>
+                                <td>${req.id}</td>
+                                <td>${req.token}</td>
+                                <td>${req.status}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error fetching summary requests!");
+            }
+        }
     </script>
 </head>
 <body>
     <header>
-        <h1>Video Hub</h1>
-        <p>Enjoy videos and more!</p>
+        <h1>Watch2Get</h1>
     </header>
 
     <div class="top-buttons">
@@ -135,13 +265,30 @@
     <section id="actions">
         <h2>Actions</h2>
         <div class="btn-container">
-            <button onclick="watchVideo()">Watch Video</button>
+            <button onclick="watchAds()">Watch Video</button>
         </div>
         <div id="adContainer"></div>
     </section>
 
+    <section id="adminPanel" class="hidden">
+        <h2>Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>ID</th>
+                    <th>Token</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="withdrawalTableBody"></tbody>
+        </table>
+        <button onclick="fetchSummaryRequests()">Refresh</button>
+    </section>
+
     <footer>
-        <p>Contact Us: support@videohub.com</p>
+        <p>Contact Us: help@watch2get.com</p>
     </footer>
 </body>
 </html>
