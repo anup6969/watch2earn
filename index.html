@@ -99,6 +99,12 @@
             height: 300px;
             margin: 20px 0;
         }
+
+        .ad-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
     </style>
     <script>
         const API_URL = "https://server-js-o0xl.onrender.com";
@@ -121,15 +127,12 @@
                     });
 
                     if (response.ok) {
-                        const data = await response.json();
                         alert("Registration successful! You can now log in.");
                     } else {
-                        const errorData = await response.json();
-                        alert(`Registration failed: ${errorData.message}`);
+                        alert("Registration failed.");
                     }
                 } catch (error) {
                     alert("Error connecting to the server. Please try again later.");
-                    console.error(error);
                 }
             });
         });
@@ -154,14 +157,12 @@
                 if (response.ok) {
                     const data = await response.json();
                     sessionUsername = username;
-                    alert(`Login successful. Tokens: ₹${data.tokens}`);
+                    alert(`Login successful. Tokens: ${data.tokens}`);
                 } else {
-                    const errorData = await response.json();
-                    alert(`Login failed: ${errorData.message}`);
+                    alert("Login failed.");
                 }
             } catch (error) {
                 alert("Error connecting to the server!");
-                console.error(error);
             }
         }
 
@@ -185,55 +186,43 @@
                 }
             } catch (error) {
                 alert("Error connecting to server!");
-                console.error(error);
             }
         }
 
         // Watch Video
-        async function watchVideo() {
+        function watchVideo() {
             if (!sessionUsername) {
                 alert("Please log in first!");
                 return;
             }
 
-            const videoContainer = document.getElementById("videoContainer");
-            videoContainer.innerHTML = `
-                <iframe src="https://www.youtube.com/embed/tgbNymZ7vqY" frameborder="0" allowfullscreen></iframe>
-            `;
-
-            setTimeout(async () => {
-                alert("Video watched successfully!");
-                await fetch(`${API_URL}/add-token`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username: sessionUsername, token: 10 }),
-                });
-            }, 5000);
+            alert("Ad is being displayed. Watch and earn tokens!");
         }
 
-        // Fetch Summary Requests
-        async function fetchSummaryRequests() {
+        // Submit Withdrawal Request
+        async function submitWithdrawalRequest() {
+            if (!sessionUsername) {
+                alert("Please log in first!");
+                return;
+            }
+
+            const id = document.getElementById("withdrawalId").value;
+            const token = document.getElementById("withdrawalToken").value;
+
             try {
-                const response = await fetch(`${API_URL}/summary-requests`);
+                const response = await fetch(`${API_URL}/withdraw`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: sessionUsername, id, token }),
+                });
+
                 if (response.ok) {
-                    const requests = await response.json();
-                    const tableBody = document.getElementById("summaryTableBody");
-                    tableBody.innerHTML = "";
-                    requests.forEach((req, index) => {
-                        tableBody.innerHTML += `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${req.username}</td>
-                                <td>${req.id}</td>
-                                <td>₹${req.token}</td>
-                                <td>${req.status}</td>
-                            </tr>
-                        `;
-                    });
+                    alert("Withdrawal request sent successfully!");
+                } else {
+                    alert("Failed to send withdrawal request.");
                 }
             } catch (error) {
-                console.error(error);
-                alert("Error fetching summary requests!");
+                alert("Error sending withdrawal request!");
             }
         }
     </script>
@@ -241,7 +230,7 @@
 <body>
     <header>
         <h1>Watch2Get</h1>
-        <p>Earn nothing by watching videos!</p>
+        <p>Earn tokens by watching ads!</p>
     </header>
 
     <div class="top-buttons">
@@ -266,28 +255,36 @@
         <div class="btn-container">
             <button onclick="watchVideo()">Watch Video</button>
         </div>
-        <div id="videoContainer"></div>
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-2526583167218952"
+                data-ad-slot="1234567890"
+                data-ad-format="auto"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </section>
+
+    <section id="withdrawal">
+        <h2>Submit Withdrawal Request</h2>
+        <form>
+            <label for="withdrawalId">ID:</label>
+            <input type="text" id="withdrawalId" required><br><br>
+            <label for="withdrawalToken">Tokens:</label>
+            <input type="number" id="withdrawalToken" required><br><br>
+            <button type="button" onclick="submitWithdrawalRequest()">Summary</button>
+        </form>
     </section>
 
     <section id="adminPanel" class="hidden">
-        <h2>Summary Requests</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Username</th>
-                    <th>ID</th>
-                    <th>Token</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="summaryTableBody"></tbody>
-        </table>
-        <button onclick="fetchSummaryRequests()">Summary</button>
+        <h2>Admin Panel</h2>
+        <p>View withdrawal requests here.</p>
     </section>
 
     <footer>
-        <p>Contact Us: support@watch2get.com</p>
+        <p>Contact us: admin@watch2get.com</p>
     </footer>
 </body>
 </html>
